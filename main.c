@@ -10,9 +10,9 @@ int main(int argc, char** argv)
 
     FILE *output = NULL;
     // output = fopen(argv[1], "rb");
-    output = fopen("/home/happy-sloth/study/picture_lib/cat.jpg", "rb");
-    // output = fopen("/home/happy-sloth/study/picture_lib/60669610479084c8ecd776f5a2acd10c.jpg", "rb");
-    // output = fopen("/home/happy-sloth/study/picture_lib/test4.jpg", "rb");
+    // output = fopen("../picture_lib/test_pic/cat.jpg", "rb");
+    // output = fopen("../picture_lib/test_pic/60669610479084c8ecd776f5a2acd10c.jpg", "rb");
+    output = fopen("../picture_lib/test_pic/test.jpg", "rb");
     // 
     
     if (!output){
