@@ -43,9 +43,11 @@ static handlers_table_item_t s_block_handlers[] = {
 
 typedef enum {CHANNEL_Y = 1, CHANNEL_Cb, CHANNEL_Cr} channel_name_t;
 typedef enum {COEFF_NAME_DC = 0, COEFF_NAME_AC} coeff_name_t;
-
+static bool log_enabled = false;
 static void log_str(const char* format_str, ...)
 {
+    if (!log_enabled)
+        return;
     char buf_str[4096] = {0};
     va_list ap;
 
@@ -585,9 +587,9 @@ int jpg_codec_file_decode(FILE *jpg_file, void **out_pixel_array)
             }
                 
 
-            RGB_matrix[k][j] = s_YCbCr_to_RGB((uint8_t)output_matrix[cur_matrix_block + cur_matrix_Y][cur_row_Y][cur_col_Y], 0, 0
-                                                                                    /*(uint8_t)output_matrix[cur_matrix_block+4][cur_row/2][cur_col/2], 
-                                                                                    (uint8_t)output_matrix[cur_matrix_block+5][cur_row/2][cur_col/2]*/);
+            RGB_matrix[k][j] = s_YCbCr_to_RGB((uint8_t)output_matrix[cur_matrix_block + cur_matrix_Y][cur_row_Y][cur_col_Y],
+                                                                                    (uint8_t)output_matrix[cur_matrix_block+4][cur_row/2][cur_col/2], 
+                                                                                    (uint8_t)output_matrix[cur_matrix_block+5][cur_row/2][cur_col/2]);
         }
     }
 
@@ -788,6 +790,8 @@ static int decode_data_flow(jpg_decoding_params_t *decoding_param, int*** zigzag
     tree_node_t *current_node = huffman_tree_current->tree;
     uint8_t current_value = 0;
     for (size_t i = 0; i < decoding_param->encoded_data_size; i++){
+        if (i > 0 && decoding_param->encoded_data[i] == 0x00 && decoding_param->encoded_data[i-1] == 0xFF)
+            i++;
         for (int j = 7; j >= 0; j--){
             current_node = (decoding_param->encoded_data[i] & (0x01 << j)) ? (current_node->right/* ? current_node->right : current_node*/ ) : (current_node->left/*? current_node->left : current_node */);
             log_str("Byte cnt = %d, bit cnt = %d, bit value = %u\n", i, 7-j, (decoding_param->encoded_data[i] & (0x01 << j)) ? 1 : 0);
@@ -837,6 +841,8 @@ static int decode_data_flow(jpg_decoding_params_t *decoding_param, int*** zigzag
                         if (j < 0){
                             i++;
                             j = 7;
+                            if (decoding_param->encoded_data[i] == 0x00 && decoding_param->encoded_data[i-1] == 0xFF)
+                                i++;
                         } 
                         coeff_value = (coeff_value << 1) | ((decoding_param->encoded_data[i] & (0x01 << j)) ? 1 : 0);
                     }
@@ -860,6 +866,8 @@ static int decode_data_flow(jpg_decoding_params_t *decoding_param, int*** zigzag
                             if (j < 0){
                                 i++;
                                 j = 7;
+                                if (decoding_param->encoded_data[i] == 0x00 && decoding_param->encoded_data[i-1] == 0xFF)
+                                    i++;
                             }
                             coeff_value = (coeff_value << 1) | ((decoding_param->encoded_data[i] & (0x01 << j)) ? 1 : 0);
                         }
