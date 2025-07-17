@@ -6,6 +6,7 @@ static bool s_huffman_add_value(tree_node_t *cur_node, int current_depth, int ta
 
 static void log_str(const char* format_str, ...)
 {
+    return;
     char buf_str[4096] = {0};
     va_list ap;
 

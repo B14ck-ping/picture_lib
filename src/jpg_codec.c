@@ -534,10 +534,7 @@ int jpg_codec_file_decode(FILE *jpg_file, void **out_pixel_array)
                     }
                     b_value_out += b_value_x;
                 }
-                b_value_out = b_value_out* 0.25;
-                b_value_out += 128;
-                b_value_out = (float)limit_value(0, 255, (int)b_value_out);
-                output_matrix[i][v][u] = (int)b_value_out;
+                output_matrix[i][v][u] = limit_value(0, 255, (int)(b_value_out * 0.25)+ 128);
             }
         }
     }
